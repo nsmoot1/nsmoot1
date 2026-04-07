@@ -1,8 +1,10 @@
 """
-ASSIGNMENT 9B: SPRINT 2 - FUNCTIONAL STUBS
-Project: Repair Manager (V1.0)
+ASSIGNMENT 11B: SPRINT 4 - WRITING TO FILES
+Project: Repair Manager (V4.0)
 Developer: Nick Smoot
 """
+
+import datetime
 
 # --- GLOBAL CONSTANTS ---
 PRICES_FILE = "repair_prices.txt"
@@ -10,8 +12,10 @@ HISTORY_FILE = "repair_history.txt"
 
 def get_customer_info():
     """Asks for customer's name, phone number/email, and device type"""
-    # TODO: Ask for name, phone/email, and device.
-    return "Nick Smoot", "nicksmoot@gmail.com", "Laptop"
+    name = input("Customer Name: ").title()
+    email = input("Customer Email: ")
+    device = input("Device Type: ")
+    return name, email, device
 
 def load_prices():
     """Gets repair prices from repair_prices.txt"""
@@ -25,8 +29,13 @@ def calculate_total(device, prices):
 
 def create_ticket(customer, price):
     """Builds a new repair job record and saves it to repair_history.txt"""
-    # TODO: Generate job ID, assign status "Received", and save it to file.
-    pass
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    with open(HISTORY_FILE, "a") as file:
+        file.write(f"[{timestamp}]\n")
+        file.write(f"Customer: {customer}\n")
+        file.write(f"Total: ${price:.2f}\n")
+        file.write("-" * 50 + "\n")
+    print("Ticket Saved.")
 
 def update_ticket():
     """Finds a job by using its ID and updates its status"""
@@ -35,27 +44,38 @@ def update_ticket():
 
 def generate_receipt(customer, total):
     """Prints a receipt for the customer"""
-    # TODO: Print a formatted receipt for the customer.
-    pass
+    print("\n--- RECEIPT ---")
+    print(f"Customer: {customer}")
+    print(f"Total: ${total:.2f}")
+    print("Thank you!")
 
 def main():
-    # 1. Identity Phase
-    name, email, device = get_customer_info()
-    print(f"Customer: {name} | Email: {email} | Device: {device}")
+    while True:
+        action = input("Enter 'new' to make a new ticket or 'quit' to exit: ").lower().strip()
 
-    # 2. Load Prices Phase
-    current_prices = load_prices()
+        if action == 'quit':
+            print("Closing Repair Manager.")
+            break
 
-    # 3. Calculation Phase
-    total = calculate_total(device, current_prices)
+        elif action == 'new':
 
-    # 4. Create Ticket Phase
-    create_ticket((name, email, device), total)
+            # 1. Identity Phase
+            name, email, device = get_customer_info()
+            print(f"Customer: {name} | Email: {email} | Device: {device}")
 
-    # 5. Update Ticket Phase
-    update_ticket()
+            # 2. Load Prices Phase
+            current_prices = load_prices()
 
-    # 6. Generate Receipt Phase
-    generate_receipt(name, total)
+            # 3. Calculation Phase
+            total = calculate_total(device, current_prices)
+
+            # 4. Create Ticket Phase
+            create_ticket(customer=(name, email, device), price=total)
+
+            # 5. Update Ticket Phase
+            update_ticket()
+
+            # 6. Generate Receipt Phase
+            generate_receipt(customer=name, total=total)
 
 main()

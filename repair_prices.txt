@@ -1,0 +1,4 @@
+Diagnostics,40.00
+Virus Removal,90.00
+OS Installation,100.00
+Data Backup/Recovery,95.00

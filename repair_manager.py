@@ -1,6 +1,6 @@
 """
-ASSIGNMENT 11B: SPRINT 4 - WRITING TO FILES
-Project: Repair Manager (V4.0)
+ASSIGNMENT 12B: SPRINT 5 - IMPLEMENTING DATA PERSISTENCE 
+Project: Repair Manager (V5.0)
 Developer: Nick Smoot
 """
 
@@ -9,6 +9,7 @@ import datetime
 # --- GLOBAL CONSTANTS ---
 PRICES_FILE = "repair_prices.txt"
 HISTORY_FILE = "repair_history.txt"
+REPORT_FILE = "repair_report.txt"
 
 def get_customer_info():
     """Asks for customer's name, phone number/email, and device type"""
@@ -19,23 +20,37 @@ def get_customer_info():
 
 def load_prices():
     """Gets repair prices from repair_prices.txt"""
-    # TODO: Open and read prices from repair_prices.txt.
-    return {}
+    prices ={}
+    try:
+        with open(PRICES_FILE, "r") as file:
+            for line in file:
+                parts = line.strip().split(",")
+                prices[parts[0].strip()] = float(parts[1].strip())
+    except FileNotFoundError:
+        print("Prices file not found.")
+    return prices
 
-def calculate_total(device, prices):
+def calculate_total(service, prices):
     """Calculates the total price for the repair job."""
-    # TODO: Calculate price using device and service.
-    return 0.0
+    total = prices.get(service, 0.0)
+    return total
 
 def create_ticket(customer, price):
     """Builds a new repair job record and saves it to repair_history.txt"""
     timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    with open(HISTORY_FILE, "a") as file:
-        file.write(f"[{timestamp}]\n")
-        file.write(f"Customer: {customer}\n")
-        file.write(f"Total: ${price:.2f}\n")
-        file.write("-" * 50 + "\n")
-    print("Ticket Saved.")
+    try:
+        # --- DATA LOG ---
+        with open(HISTORY_FILE, "a") as file:
+            file.write(f"{customer}, {price:.2f}, {timestamp}\n")
+
+        with open(REPORT_FILE, "w") as file:
+            file.write(f"[{timestamp}]\n")
+            file.write(f"Customer: {customer}\n")
+            file.write(f"Total: ${price:.2f}\n")
+            file.write("-" * 50 + "\n")
+        print("Ticket Saved.")
+    except Exception as e:
+        print(f"Error saving ticket: {e}") 
 
 def update_ticket():
     """Finds a job by using its ID and updates its status"""
@@ -65,9 +80,14 @@ def main():
 
             # 2. Load Prices Phase
             current_prices = load_prices()
+            print("\nServices:")
+            for service, price in current_prices.items():
+                print(f" {service}: ${price:.2f}")
+            service = input("Select a service: ").title().strip()
 
             # 3. Calculation Phase
-            total = calculate_total(device, current_prices)
+            total = calculate_total(service, current_prices)
+        
 
             # 4. Create Ticket Phase
             create_ticket(customer=(name, email, device), price=total)

@@ -1,0 +1,101 @@
+"""
+ASSIGNMENT 11B: SPRINT 5 - IMPLEMENTING DATA PERSISTENCE 
+Project: Repair Manager (V5.0)
+Developer: Nick Smoot
+"""
+
+import datetime
+
+# --- GLOBAL CONSTANTS ---
+PRICES_FILE = "repair_prices.txt"
+HISTORY_FILE = "repair_history.txt"
+REPORT_FILE = "repair_report.txt"
+
+def get_customer_info():
+    """Asks for customer's name, email, and device type"""
+    name = input("Customer Name: ").title()
+    email = input("Customer Email: ")
+    device = input("Device Type: ")
+    return name, email, device
+
+def load_prices():
+    """Gets repair prices from repair_prices.txt"""
+    prices ={}
+    try:
+        with open(PRICES_FILE, "r") as file:
+            for line in file: 
+                parts = line.strip().split(",")
+                prices[parts[0].strip()] = float(parts[1].strip())
+    except FileNotFoundError:
+        print("Prices file not found.")
+    return prices
+
+def calculate_total(service, prices):
+    """Calculates the total price for the repair job."""
+    total = prices.get(service, 0.0)
+    return total
+
+def create_ticket(customer, price):
+    """Builds a new repair job record and saves it to repair_history.txt and repair_report.txt"""
+    timestamp = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    try:
+        # --- DATA LOG ---
+        with open(HISTORY_FILE, "a") as file:
+            file.write(f"{customer}, {price:.2f}, {timestamp}\n")
+
+        with open(REPORT_FILE, "w") as file:
+            file.write(f"[{timestamp}]\n")
+            file.write(f"Customer: {customer}\n")
+            file.write(f"Total: ${price:.2f}\n")
+            file.write("-" * 50 + "\n")
+        print("Ticket Saved.")
+    except Exception as e:
+        print(f"Error saving ticket: {e}") 
+
+def update_ticket():
+    """Finds a job by using its ID and updates its status"""
+    # TODO: Search repair_history.txt for a job and update its status.
+    pass
+
+def generate_receipt(customer, total):
+    """Prints a receipt for the customer"""
+    print("\n--- RECEIPT ---")
+    print(f"Customer: {customer}")
+    print(f"Total: ${total:.2f}") 
+    print("Thank you!")
+
+def main():
+    while True:
+        action = input("Enter 'new' to make a new ticket or 'quit' to exit: ").lower().strip()
+
+        if action == 'quit':
+            print("Closing Repair Manager.")
+            break
+
+        elif action == 'new':
+
+            # 1. Identity Phase
+            name, email, device = get_customer_info()
+            print(f"Customer: {name} | Email: {email} | Device: {device}")
+
+            # 2. Load Prices Phase
+            current_prices = load_prices()
+            print("\nServices:")
+            for service, price in current_prices.items():
+                print(f" {service}: ${price:.2f}")
+            service = input("Select a service: ").title().strip()
+
+            # 3. Calculation Phase
+            total = calculate_total(service, current_prices)
+        
+
+            # 4. Create Ticket Phase
+            create_ticket(customer=(name, email, device), price=total)
+
+            # 5. Update Ticket Phase
+            update_ticket()
+
+            # 6. Generate Receipt Phase
+            generate_receipt(customer=name, total=total)
+
+main()

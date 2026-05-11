@@ -1,6 +1,6 @@
 # Repair Manager v2.0
 **Developer:** Nick Smoot  
-**Course:** ADD-100
+
 
 ## About
 A web-based PC repair shop management system built with Streamlit. Helps repair shops track jobs, manage pricing, and generate reports.
